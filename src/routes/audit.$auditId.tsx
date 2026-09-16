@@ -2,23 +2,23 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
-import { ZONES, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
-import { scoreTone } from "@/lib/audit-engine";
+import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
+import { scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/audit/$auditId")({
   head: () => ({
     meta: [
-      { title: "Отчёт AI-аудита сайта — оценка удобства и конверсии" },
+      { title: "Отчёт Mega.Audit — слабые места вашего сайта" },
       {
         name: "description",
         content:
-          "Итоги аудита: общий скор, сильные стороны, узкие места, потери заявок и подобранные доработки для роста конверсии.",
+          "Что мешает клиентам оформить заказ на вашем сайте: слабые места по зонам, оценка потерянных обращений и список доработок.",
       },
-      { property: "og:title", content: "Отчёт AI-аудита сайта" },
+      { property: "og:title", content: "Отчёт Mega.Audit по сайту" },
       {
         property: "og:description",
-        content: "Оценка удобства и конверсии, влияние проблем на бизнес и рекомендации по доработкам.",
+        content: "Слабые места сайта, потери обращений и конкретные доработки под ваш формат сайта.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
