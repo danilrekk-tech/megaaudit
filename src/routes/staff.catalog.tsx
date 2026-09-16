@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Badge, Button, Card, Input, Textarea } from "@/components/ui-bits";
 import { ZONES, type Addon, type ZoneKey } from "@/lib/audit-types";
 import { addonZones } from "@/lib/audit-engine";
-import { getCatalog, resetCatalog, saveCatalog, upsertAddon, useStore } from "@/lib/store";
+import { getCatalog, resetCatalog, upsertAddon, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/staff/catalog")({
   component: StaffCatalog,
@@ -209,9 +209,7 @@ function StaffCatalog() {
 
       <p className="mt-4 text-xs text-muted-foreground">
         Изменения сохраняются в этом браузере. Кнопка сброса возвращает исходную базу из файла.
-        {catalog && catalog.length !== getCatalog().length ? null : ""}
       </p>
-      <span className="hidden">{saveCatalog ? "" : ""}</span>
     </div>
   );
 }
