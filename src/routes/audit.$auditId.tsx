@@ -138,9 +138,9 @@ function AuditPage() {
           <Card className="flex flex-col items-center gap-4">
             <ScoreRing score={audit.overall} />
             <div className="text-center">
-              <p className="font-semibold">Общий скор удобства</p>
+              <p className="font-semibold">Насколько сайту удобно доверять заказ</p>
               <p className="text-sm text-muted-foreground">
-                Потенциал конверсии: {audit.conversionScore}/100
+                Готовность приводить к покупке: {audit.conversionScore}/100
               </p>
             </div>
           </Card>
@@ -168,56 +168,71 @@ function AuditPage() {
           </Card>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
-          <Card>
-            <p className="font-semibold text-success">Сильные стороны</p>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              {(strengths.length ? strengths : ["Базовая функциональность сайта работает"]).map((s, i) => (
-                <li key={i}>• {s}</li>
-              ))}
-            </ul>
-          </Card>
-          <Card>
-            <p className="font-semibold text-danger">Узкие места</p>
-            <ul className="mt-4 space-y-3 text-sm">
-              {weakest.map((z) => (
-                <li key={z.key}>
-                  <p className="font-medium">{ZONES.find((x) => x.key === z.key)!.label}</p>
-                  <ul className="mt-1 space-y-1 text-muted-foreground">
-                    {z.findings.map((f, i) => (
-                      <li key={i}>— {f}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </Card>
+        <h2 className="mt-12 text-2xl font-bold tracking-tight">Слабые места: где именно теряются клиенты</h2>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          Начните с этих зон — они сильнее всего мешают посетителям дойти до заказа.
+        </p>
+        <div className="mt-5 space-y-4">
+          {weakest.map((z) => {
+            const meta = ZONES.find((x) => x.key === z.key)!;
+            const tone = scoreTone(z.score);
+            return (
+              <Card key={z.key}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-lg font-semibold">{meta.label}</p>
+                  <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
+                    оценка {z.score} из 100
+                  </Badge>
+                </div>
+                <div className="mt-3">
+                  <ScoreBar score={z.score} />
+                </div>
+                <p className="mt-4 text-sm font-medium text-danger">Чем это грозит</p>
+                <p className="mt-1 text-sm text-muted-foreground">{ZONE_LOSS[z.key]}</p>
+                <p className="mt-4 text-sm font-medium">Что нашли на сайте</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                  {z.findings.map((f, i) => (
+                    <li key={i}>— {f}</li>
+                  ))}
+                </ul>
+              </Card>
+            );
+          })}
         </div>
 
-        <h2 className="mt-12 text-2xl font-bold tracking-tight">Как это влияет на бизнес</h2>
+        <Card className="mt-6">
+          <p className="font-semibold text-success">Что уже работает хорошо</p>
+          <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            {(strengths.length ? strengths : ["Основные страницы сайта работают без ошибок"]).map((s, i) => (
+              <li key={i}>• {s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <h2 className="mt-12 text-2xl font-bold tracking-tight">Сколько это стоит вам сейчас</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
-            label="Потери заявок"
+            label="Потерянные обращения"
             value={`~${audit.impact.lostLeadsPerMonth}/мес`}
-            hint="обращения, которые не доходят до менеджера"
+            hint="клиенты, которые так и не написали и не позвонили"
             tone="bad"
           />
           <Stat
-            label="Брошенные корзины"
+            label={audit.siteType === "ecommerce" ? "Брошенные корзины" : "Незаполненные заявки"}
             value={`${audit.impact.abandonedCartsPct}%`}
-            hint="уходят на этапе оформления"
+            hint="уходят, уже начав оформление"
             tone="bad"
           />
           <Stat
-            label="Отток мобильных"
+            label="Уходят с телефона"
             value={`${audit.impact.mobileChurnPct}%`}
-            hint="закрывают сайт с телефона"
+            hint="закрывают сайт, не разобравшись"
             tone="bad"
           />
           <Stat
             label="Недополученная выручка"
             value={`${audit.impact.revenueLossPct}%`}
-            hint="оценка при текущем трафике"
+            hint="оценка при текущем числе посетителей"
             tone="bad"
           />
         </div>
