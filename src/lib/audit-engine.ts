@@ -262,7 +262,7 @@ export function runAudit(
     const base = 38 + Math.floor(rand() * 48) + improvement;
     const score = Math.max(24, Math.min(96, base));
     const pool = [...FINDINGS[z.key][siteType], ...FINDINGS[z.key].any];
-    const findingCount = score >= 80 ? 1 : score >= 60 ? 2 : 3;
+    const findingCount = score >= 80 ? 2 : score >= 60 ? 3 : 5;
     return {
       key: z.key,
       score,
