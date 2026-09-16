@@ -99,7 +99,7 @@ function AuditPage() {
   const addons = audit.addonIds
     .map((id) => catalog?.find((a) => a.id === id))
     .filter((a): a is Addon => Boolean(a));
-  const weakest = [...audit.zones].sort((a, b) => a.score - b.score).slice(0, 2);
+  const weakest = weakZones(audit.zones).slice(0, 3);
   const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
 
   const createProposal = () => {
@@ -112,7 +112,7 @@ function AuditPage() {
       createdAt: new Date().toISOString(),
       items: addons.map((a, i) => ({ addonId: a.id, price: a.price ?? 0, stage: i < 3 ? 1 : 2 })),
       discountPct: 0,
-      notes: "Предложение сформировано по результатам AI-аудита сайта.",
+      notes: "Предложение сформировано по результатам проверки сайта в Mega.Audit.",
     });
     void navigate({ to: "/proposal/$proposalId", params: { proposalId: id } });
   };
@@ -127,7 +127,12 @@ function AuditPage() {
             {new Date(audit.createdAt).toLocaleString("ru-RU")}
           </span>
         </div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight">Отчёт по сайту {audit.host}</h1>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          {audit.detect?.reason
+            ? `${audit.detect.reason}. Отчёт и доработки подобраны под этот формат.`
+            : `Формат сайта: ${SITE_TYPE_LABEL[audit.siteType]}. Отчёт и доработки подобраны под него.`}
+        </p>
 
         <div className="mt-8 grid gap-5 lg:grid-cols-[auto_1fr]">
           <Card className="flex flex-col items-center gap-4">
