@@ -245,7 +245,11 @@ export function recommendAddons(
 export function runAudit(
   input: string,
   catalog: Addon[],
-  options: { siteTypeHint?: SiteType | undefined; attempt?: number | undefined } = {},
+  options: {
+    siteTypeHint?: SiteType | undefined;
+    attempt?: number | undefined;
+    detect?: { reason: string; pages: number; reached: boolean } | undefined;
+  } = {},
 ): Audit {
   const url = normalizeUrl(input);
   const host = hostOf(url);
