@@ -6,7 +6,7 @@ import { getAudits, getCatalog, getProposal, getProposals, saveProposal, useStor
 
 export const Route = createFileRoute("/staff/proposal")({
   validateSearch: (search: Record<string, unknown>): { kp?: string } => ({
-    ...(typeof search.kp === "string" ? { kp: search.kp } : {}),
+    ...(typeof search["kp"] === "string" ? { kp: search["kp"] } : {}),
   }),
   component: StaffProposal,
 });
