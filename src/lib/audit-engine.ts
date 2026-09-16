@@ -183,13 +183,48 @@ function pick<T>(list: T[], count: number, rand: () => number): T[] {
   return out;
 }
 
+const ECOM_ONLY = [
+  "корзин",
+  "товар",
+  "артикул",
+  "магазин",
+  "склад",
+  "прайс-лист",
+  "каталог",
+  "оформление заказа",
+  "доставк",
+  "оплат",
+  "чек",
+  "маркетплейс",
+  "остатк",
+  "1с",
+];
+const MULTIPAGE_ONLY = ["раздел", "меню сайта", "навигац", "личный кабинет", "блог", "фильтр", "поиск по сайту"];
+
+/** Для каких форматов сайта доработка вообще применима. */
+export function addonSiteTypes(addon: Addon): SiteType[] {
+  const text = `${addon.name} ${addon.description}`.toLowerCase();
+  if (addon.category === "Интернет-магазин") return ["ecommerce"];
+  if (ECOM_ONLY.some((k) => text.includes(k))) return ["ecommerce"];
+  if (MULTIPAGE_ONLY.some((k) => text.includes(k))) return ["ecommerce", "services"];
+  return ["ecommerce", "services", "landing"];
+}
+
+/** Слабые зоны без акцента на продающих блоках — сначала то, где сайт реально теряет клиентов. */
+export function weakZones(zones: ZoneResult[]): ZoneResult[] {
+  return [...zones].sort((a, b) => {
+    const w = (z: ZoneResult) => z.score + (z.key === "seo" ? 10 : 0);
+    return w(a) - w(b);
+  });
+}
+
 export function recommendAddons(
   zones: ZoneResult[],
   siteType: SiteType,
   catalog: Addon[],
   limit = 8,
 ): string[] {
-  const active = catalog.filter((a) => !a.archived);
+  const active = catalog.filter((a) => !a.archived && addonSiteTypes(a).includes(siteType));
   const weak = [...zones].sort((a, b) => a.score - b.score);
   const out: string[] = [];
   const perZone = (zone: ZoneResult, n: number) => {
