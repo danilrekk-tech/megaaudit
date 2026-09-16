@@ -295,6 +295,7 @@ export function runAudit(
     conversionScore,
     zones,
     impact,
+    ...(options.detect ? { detect: options.detect } : {}),
     addonIds: recommendAddons(zones, siteType, catalog),
     staff: {
       notes: "",
