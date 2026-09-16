@@ -10,33 +10,122 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as AuditAuditIdRouteImport } from './routes/audit.$auditId'
+import { Route as ProposalProposalIdRouteImport } from './routes/proposal.$proposalId'
+import { Route as StaffIndexRouteImport } from './routes/staff.index'
+import { Route as StaffCatalogRouteImport } from './routes/staff.catalog'
+import { Route as StaffProposalRouteImport } from './routes/staff.proposal'
+import { Route as StaffAuditsAuditIdRouteImport } from './routes/staff.audits.$auditId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditAuditIdRoute = AuditAuditIdRouteImport.update({
+  id: '/audit/$auditId',
+  path: '/audit/$auditId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProposalProposalIdRoute = ProposalProposalIdRouteImport.update({
+  id: '/proposal/$proposalId',
+  path: '/proposal/$proposalId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffIndexRoute = StaffIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffCatalogRoute = StaffCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffProposalRoute = StaffProposalRouteImport.update({
+  id: '/proposal',
+  path: '/proposal',
+  getParentRoute: () => StaffRoute,
+} as any)
+const StaffAuditsAuditIdRoute = StaffAuditsAuditIdRouteImport.update({
+  id: '/audits/$auditId',
+  path: '/audits/$auditId',
+  getParentRoute: () => StaffRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/staff': typeof StaffRouteWithChildren
+  '/audit/$auditId': typeof AuditAuditIdRoute
+  '/proposal/$proposalId': typeof ProposalProposalIdRoute
+  '/staff/catalog': typeof StaffCatalogRoute
+  '/staff/proposal': typeof StaffProposalRoute
+  '/staff/': typeof StaffIndexRoute
+  '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit/$auditId': typeof AuditAuditIdRoute
+  '/proposal/$proposalId': typeof ProposalProposalIdRoute
+  '/staff/catalog': typeof StaffCatalogRoute
+  '/staff/proposal': typeof StaffProposalRoute
+  '/staff': typeof StaffIndexRoute
+  '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/staff': typeof StaffRouteWithChildren
+  '/audit/$auditId': typeof AuditAuditIdRoute
+  '/proposal/$proposalId': typeof ProposalProposalIdRoute
+  '/staff/catalog': typeof StaffCatalogRoute
+  '/staff/proposal': typeof StaffProposalRoute
+  '/staff/': typeof StaffIndexRoute
+  '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/staff'
+    | '/audit/$auditId'
+    | '/proposal/$proposalId'
+    | '/staff/catalog'
+    | '/staff/proposal'
+    | '/staff/'
+    | '/staff/audits/$auditId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/audit/$auditId'
+    | '/proposal/$proposalId'
+    | '/staff/catalog'
+    | '/staff/proposal'
+    | '/staff'
+    | '/staff/audits/$auditId'
+  id:
+    | '__root__'
+    | '/'
+    | '/staff'
+    | '/audit/$auditId'
+    | '/proposal/$proposalId'
+    | '/staff/catalog'
+    | '/staff/proposal'
+    | '/staff/'
+    | '/staff/audits/$auditId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StaffRoute: typeof StaffRouteWithChildren
+  AuditAuditIdRoute: typeof AuditAuditIdRoute
+  ProposalProposalIdRoute: typeof ProposalProposalIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +137,79 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit/$auditId': {
+      id: '/audit/$auditId'
+      path: '/audit/$auditId'
+      fullPath: '/audit/$auditId'
+      preLoaderRoute: typeof AuditAuditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proposal/$proposalId': {
+      id: '/proposal/$proposalId'
+      path: '/proposal/$proposalId'
+      fullPath: '/proposal/$proposalId'
+      preLoaderRoute: typeof ProposalProposalIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/': {
+      id: '/staff/'
+      path: '/'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/catalog': {
+      id: '/staff/catalog'
+      path: '/catalog'
+      fullPath: '/staff/catalog'
+      preLoaderRoute: typeof StaffCatalogRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/proposal': {
+      id: '/staff/proposal'
+      path: '/proposal'
+      fullPath: '/staff/proposal'
+      preLoaderRoute: typeof StaffProposalRouteImport
+      parentRoute: typeof StaffRoute
+    }
+    '/staff/audits/$auditId': {
+      id: '/staff/audits/$auditId'
+      path: '/audits/$auditId'
+      fullPath: '/staff/audits/$auditId'
+      preLoaderRoute: typeof StaffAuditsAuditIdRouteImport
+      parentRoute: typeof StaffRoute
+    }
   }
 }
 
+interface StaffRouteChildren {
+  StaffCatalogRoute: typeof StaffCatalogRoute
+  StaffProposalRoute: typeof StaffProposalRoute
+  StaffIndexRoute: typeof StaffIndexRoute
+  StaffAuditsAuditIdRoute: typeof StaffAuditsAuditIdRoute
+}
+
+const StaffRouteChildren: StaffRouteChildren = {
+  StaffCatalogRoute: StaffCatalogRoute,
+  StaffProposalRoute: StaffProposalRoute,
+  StaffIndexRoute: StaffIndexRoute,
+  StaffAuditsAuditIdRoute: StaffAuditsAuditIdRoute,
+}
+
+const StaffRouteWithChildren = StaffRoute._addFileChildren(StaffRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StaffRoute: StaffRouteWithChildren,
+  AuditAuditIdRoute: AuditAuditIdRoute,
+  ProposalProposalIdRoute: ProposalProposalIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
