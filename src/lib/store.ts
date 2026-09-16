@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import seed from "@/data/addons.json";
 import type { Addon, Audit, Proposal } from "./audit-types";
 
@@ -100,8 +100,10 @@ export function setStaffUnlocked(value: boolean) {
 
 /** Subscribe to storage changes and re-read on every update. */
 export function useStore<T>(selector: () => T): [T, () => void] {
+  const selectorRef = useRef(selector);
+  selectorRef.current = selector;
   const [value, setValue] = useState<T | undefined>(undefined);
-  const refresh = useCallback(() => setValue(selector()), [selector]);
+  const refresh = useCallback(() => setValue(selectorRef.current()), []);
 
   useEffect(() => {
     refresh();
