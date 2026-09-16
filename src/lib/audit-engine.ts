@@ -225,7 +225,7 @@ export function recommendAddons(
   limit = 8,
 ): string[] {
   const active = catalog.filter((a) => !a.archived && addonSiteTypes(a).includes(siteType));
-  const weak = [...zones].sort((a, b) => a.score - b.score);
+  const weak = weakZones(zones);
   const out: string[] = [];
   const perZone = (zone: ZoneResult, n: number) => {
     const matches = active
