@@ -2,23 +2,23 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
-import { ZONES, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
-import { scoreTone } from "@/lib/audit-engine";
+import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
+import { scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/audit/$auditId")({
   head: () => ({
     meta: [
-      { title: "Отчёт AI-аудита сайта — оценка удобства и конверсии" },
+      { title: "Отчёт Mega.Audit — слабые места вашего сайта" },
       {
         name: "description",
         content:
-          "Итоги аудита: общий скор, сильные стороны, узкие места, потери заявок и подобранные доработки для роста конверсии.",
+          "Что мешает клиентам оформить заказ на вашем сайте: слабые места по зонам, оценка потерянных обращений и список доработок.",
       },
-      { property: "og:title", content: "Отчёт AI-аудита сайта" },
+      { property: "og:title", content: "Отчёт Mega.Audit по сайту" },
       {
         property: "og:description",
-        content: "Оценка удобства и конверсии, влияние проблем на бизнес и рекомендации по доработкам.",
+        content: "Слабые места сайта, потери обращений и конкретные доработки под ваш формат сайта.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -99,7 +99,7 @@ function AuditPage() {
   const addons = audit.addonIds
     .map((id) => catalog?.find((a) => a.id === id))
     .filter((a): a is Addon => Boolean(a));
-  const weakest = [...audit.zones].sort((a, b) => a.score - b.score).slice(0, 2);
+  const weakest = weakZones(audit.zones).slice(0, 3);
   const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
 
   const createProposal = () => {
@@ -112,7 +112,7 @@ function AuditPage() {
       createdAt: new Date().toISOString(),
       items: addons.map((a, i) => ({ addonId: a.id, price: a.price ?? 0, stage: i < 3 ? 1 : 2 })),
       discountPct: 0,
-      notes: "Предложение сформировано по результатам AI-аудита сайта.",
+      notes: "Предложение сформировано по результатам проверки сайта в Mega.Audit.",
     });
     void navigate({ to: "/proposal/$proposalId", params: { proposalId: id } });
   };
@@ -127,15 +127,20 @@ function AuditPage() {
             {new Date(audit.createdAt).toLocaleString("ru-RU")}
           </span>
         </div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight">Отчёт по сайту {audit.host}</h1>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          {audit.detect?.reason
+            ? `${audit.detect.reason}. Отчёт и доработки подобраны под этот формат.`
+            : `Формат сайта: ${SITE_TYPE_LABEL[audit.siteType]}. Отчёт и доработки подобраны под него.`}
+        </p>
 
         <div className="mt-8 grid gap-5 lg:grid-cols-[auto_1fr]">
           <Card className="flex flex-col items-center gap-4">
             <ScoreRing score={audit.overall} />
             <div className="text-center">
-              <p className="font-semibold">Общий скор удобства</p>
+              <p className="font-semibold">Насколько сайту удобно доверять заказ</p>
               <p className="text-sm text-muted-foreground">
-                Потенциал конверсии: {audit.conversionScore}/100
+                Готовность приводить к покупке: {audit.conversionScore}/100
               </p>
             </div>
           </Card>
@@ -163,56 +168,71 @@ function AuditPage() {
           </Card>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
-          <Card>
-            <p className="font-semibold text-success">Сильные стороны</p>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              {(strengths.length ? strengths : ["Базовая функциональность сайта работает"]).map((s, i) => (
-                <li key={i}>• {s}</li>
-              ))}
-            </ul>
-          </Card>
-          <Card>
-            <p className="font-semibold text-danger">Узкие места</p>
-            <ul className="mt-4 space-y-3 text-sm">
-              {weakest.map((z) => (
-                <li key={z.key}>
-                  <p className="font-medium">{ZONES.find((x) => x.key === z.key)!.label}</p>
-                  <ul className="mt-1 space-y-1 text-muted-foreground">
-                    {z.findings.map((f, i) => (
-                      <li key={i}>— {f}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </Card>
+        <h2 className="mt-12 text-2xl font-bold tracking-tight">Слабые места: где именно теряются клиенты</h2>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          Начните с этих зон — они сильнее всего мешают посетителям дойти до заказа.
+        </p>
+        <div className="mt-5 space-y-4">
+          {weakest.map((z) => {
+            const meta = ZONES.find((x) => x.key === z.key)!;
+            const tone = scoreTone(z.score);
+            return (
+              <Card key={z.key}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-lg font-semibold">{meta.label}</p>
+                  <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
+                    оценка {z.score} из 100
+                  </Badge>
+                </div>
+                <div className="mt-3">
+                  <ScoreBar score={z.score} />
+                </div>
+                <p className="mt-4 text-sm font-medium text-danger">Чем это грозит</p>
+                <p className="mt-1 text-sm text-muted-foreground">{ZONE_LOSS[z.key]}</p>
+                <p className="mt-4 text-sm font-medium">Что нашли на сайте</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                  {z.findings.map((f, i) => (
+                    <li key={i}>— {f}</li>
+                  ))}
+                </ul>
+              </Card>
+            );
+          })}
         </div>
 
-        <h2 className="mt-12 text-2xl font-bold tracking-tight">Как это влияет на бизнес</h2>
+        <Card className="mt-6">
+          <p className="font-semibold text-success">Что уже работает хорошо</p>
+          <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            {(strengths.length ? strengths : ["Основные страницы сайта работают без ошибок"]).map((s, i) => (
+              <li key={i}>• {s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <h2 className="mt-12 text-2xl font-bold tracking-tight">Сколько это стоит вам сейчас</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
-            label="Потери заявок"
+            label="Потерянные обращения"
             value={`~${audit.impact.lostLeadsPerMonth}/мес`}
-            hint="обращения, которые не доходят до менеджера"
+            hint="клиенты, которые так и не написали и не позвонили"
             tone="bad"
           />
           <Stat
-            label="Брошенные корзины"
+            label={audit.siteType === "ecommerce" ? "Брошенные корзины" : "Незаполненные заявки"}
             value={`${audit.impact.abandonedCartsPct}%`}
-            hint="уходят на этапе оформления"
+            hint="уходят, уже начав оформление"
             tone="bad"
           />
           <Stat
-            label="Отток мобильных"
+            label="Уходят с телефона"
             value={`${audit.impact.mobileChurnPct}%`}
-            hint="закрывают сайт с телефона"
+            hint="закрывают сайт, не разобравшись"
             tone="bad"
           />
           <Stat
             label="Недополученная выручка"
             value={`${audit.impact.revenueLossPct}%`}
-            hint="оценка при текущем трафике"
+            hint="оценка при текущем числе посетителей"
             tone="bad"
           />
         </div>

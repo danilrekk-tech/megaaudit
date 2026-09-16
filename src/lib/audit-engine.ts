@@ -183,14 +183,49 @@ function pick<T>(list: T[], count: number, rand: () => number): T[] {
   return out;
 }
 
+const ECOM_ONLY = [
+  "корзин",
+  "товар",
+  "артикул",
+  "магазин",
+  "склад",
+  "прайс-лист",
+  "каталог",
+  "оформление заказа",
+  "доставк",
+  "оплат",
+  "чек",
+  "маркетплейс",
+  "остатк",
+  "1с",
+];
+const MULTIPAGE_ONLY = ["раздел", "меню сайта", "навигац", "личный кабинет", "блог", "фильтр", "поиск по сайту"];
+
+/** Для каких форматов сайта доработка вообще применима. */
+export function addonSiteTypes(addon: Addon): SiteType[] {
+  const text = `${addon.name} ${addon.description}`.toLowerCase();
+  if (addon.category === "Интернет-магазин") return ["ecommerce"];
+  if (ECOM_ONLY.some((k) => text.includes(k))) return ["ecommerce"];
+  if (MULTIPAGE_ONLY.some((k) => text.includes(k))) return ["ecommerce", "services"];
+  return ["ecommerce", "services", "landing"];
+}
+
+/** Слабые зоны без акцента на продающих блоках — сначала то, где сайт реально теряет клиентов. */
+export function weakZones(zones: ZoneResult[]): ZoneResult[] {
+  return [...zones].sort((a, b) => {
+    const w = (z: ZoneResult) => z.score + (z.key === "seo" ? 10 : 0);
+    return w(a) - w(b);
+  });
+}
+
 export function recommendAddons(
   zones: ZoneResult[],
   siteType: SiteType,
   catalog: Addon[],
   limit = 8,
 ): string[] {
-  const active = catalog.filter((a) => !a.archived);
-  const weak = [...zones].sort((a, b) => a.score - b.score);
+  const active = catalog.filter((a) => !a.archived && addonSiteTypes(a).includes(siteType));
+  const weak = weakZones(zones);
   const out: string[] = [];
   const perZone = (zone: ZoneResult, n: number) => {
     const matches = active
@@ -210,7 +245,11 @@ export function recommendAddons(
 export function runAudit(
   input: string,
   catalog: Addon[],
-  options: { siteTypeHint?: SiteType | undefined; attempt?: number | undefined } = {},
+  options: {
+    siteTypeHint?: SiteType | undefined;
+    attempt?: number | undefined;
+    detect?: { reason: string; pages: number; reached: boolean } | undefined;
+  } = {},
 ): Audit {
   const url = normalizeUrl(input);
   const host = hostOf(url);
@@ -223,7 +262,7 @@ export function runAudit(
     const base = 38 + Math.floor(rand() * 48) + improvement;
     const score = Math.max(24, Math.min(96, base));
     const pool = [...FINDINGS[z.key][siteType], ...FINDINGS[z.key].any];
-    const findingCount = score >= 80 ? 1 : score >= 60 ? 2 : 3;
+    const findingCount = score >= 80 ? 2 : score >= 60 ? 3 : 5;
     return {
       key: z.key,
       score,
@@ -256,6 +295,7 @@ export function runAudit(
     conversionScore,
     zones,
     impact,
+    ...(options.detect ? { detect: options.detect } : {}),
     addonIds: recommendAddons(zones, siteType, catalog),
     staff: {
       notes: "",

@@ -9,12 +9,21 @@ export const SITE_TYPE_LABEL: Record<SiteType, string> = {
 export type ZoneKey = "order" | "mobile" | "trust" | "speed" | "seo";
 
 export const ZONES: { key: ZoneKey; label: string; hint: string }[] = [
-  { key: "order", label: "Удобство заказа и корзины", hint: "путь до заявки, корзина, оплата" },
-  { key: "mobile", label: "Мобильная адаптивность", hint: "верстка и удобство на телефоне" },
-  { key: "trust", label: "Доверие и контакты", hint: "контакты, отзывы, гарантии" },
-  { key: "speed", label: "Скорость и вовлечение", hint: "загрузка, интерактив, возвраты" },
-  { key: "seo", label: "SEO и коммерческие факторы", hint: "видимость в поиске и продающие блоки" },
+  { key: "order", label: "Путь до заказа и заявки", hint: "сколько шагов до покупки и где клиент бросает" },
+  { key: "mobile", label: "Удобство на телефоне", hint: "как сайт работает у большинства посетителей" },
+  { key: "trust", label: "Доверие и связь", hint: "отзывы, гарантии, быстрые способы связаться" },
+  { key: "speed", label: "Скорость и вовлечение", hint: "не уходит ли клиент с первой секунды" },
+  { key: "seo", label: "Продающие блоки", hint: "акции, подборки, поводы вернуться" },
 ];
+
+/** Чем грозит слабая оценка зоны — простыми словами для клиента. */
+export const ZONE_LOSS: Record<ZoneKey, string> = {
+  order: "Каждый лишний шаг в заказе отсекает часть покупателей: они уходят, уже выбрав товар или услугу.",
+  mobile: "С телефона приходит большинство посетителей — неудобный экран превращает их в отказы.",
+  trust: "Если непонятно, кому платить и как связаться, клиент уходит сравнивать вас с конкурентами.",
+  speed: "Медленный или скучный первый экран теряет посетителя раньше, чем он увидит предложение.",
+  seo: "Без акций, подборок и поводов вернуться сайт продаёт только тем, кто уже готов купить.",
+};
 
 export type ZoneResult = {
   key: ZoneKey;
@@ -41,6 +50,7 @@ export type Audit = {
   conversionScore: number;
   zones: ZoneResult[];
   impact: AuditImpact;
+  detect?: { reason: string; pages: number; reached: boolean };
   addonIds: string[];
   staff: {
     notes: string;
