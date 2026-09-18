@@ -18,6 +18,12 @@ function StaffAudit() {
   const [notes, setNotes] = useState("");
   const [comment, setComment] = useState("");
   const [saved, setSaved] = useState(false);
+  const addons = audit
+    ? audit.addonIds
+        .map((id) => catalog?.find((a) => a.id === id))
+        .filter((a): a is Addon => Boolean(a))
+    : [];
+  const { prices, loading: pricesLoading } = useAddonPrices(addons);
 
   useEffect(() => {
     if (!audit) return;
@@ -38,11 +44,6 @@ function StaffAudit() {
 
   const history = auditsForHost(audit.host);
   const previous = history.filter((a) => a.attempt < audit.attempt).pop();
-  const addons = audit.addonIds
-    .map((id) => catalog?.find((a) => a.id === id))
-    .filter((a): a is Addon => Boolean(a));
-  const { prices, loading: pricesLoading } = useAddonPrices(addons);
-
   const save = () => {
     saveAudit({ ...audit, staff: { ...audit.staff, notes, managerComment: comment } });
     setSaved(true);

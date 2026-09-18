@@ -36,6 +36,12 @@ function AuditPage() {
   const [audit] = useStore<Audit | undefined>(() => getAudit(auditId));
   const [catalog] = useStore<Addon[]>(() => getCatalog());
   const [step, setStep] = useState(0);
+  const addons = audit
+    ? audit.addonIds
+        .map((id) => catalog?.find((a) => a.id === id))
+        .filter((a): a is Addon => Boolean(a))
+    : [];
+  const { prices, loading: pricesLoading } = useAddonPrices(addons);
 
   useEffect(() => {
     if (step >= STEPS.length) return;
@@ -97,10 +103,6 @@ function AuditPage() {
     );
   }
 
-  const addons = audit.addonIds
-    .map((id) => catalog?.find((a) => a.id === id))
-    .filter((a): a is Addon => Boolean(a));
-  const { prices, loading: pricesLoading } = useAddonPrices(addons);
   const weakest = weakZones(audit.zones).slice(0, 3);
   const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
 
