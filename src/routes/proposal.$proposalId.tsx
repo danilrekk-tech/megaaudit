@@ -9,7 +9,7 @@ export const Route = createFileRoute("/proposal/$proposalId")({
       { title: "Коммерческое предложение по доработкам сайта" },
       {
         name: "description",
-        content: "Смета доработок сайта по результатам AI-аудита: состав работ, этапы и стоимость.",
+        content: "Смета доработок сайта по результатам Mega.Audit: состав работ, этапы и стоимость.",
       },
       { property: "og:title", content: "Коммерческое предложение по доработкам сайта" },
       { property: "og:description", content: "Состав работ, этапы внедрения и стоимость доработок." },
@@ -137,7 +137,7 @@ function ProposalPage() {
           </div>
 
           <p className="mt-8 text-xs text-muted-foreground">
-            Предложение подготовлено по результатам AI-аудита сайта. Каталог доработок:
+            Предложение подготовлено по результатам проверки сайта в Mega.Audit. Каталог доработок:
             megagroup.shop
           </p>
         </Card>

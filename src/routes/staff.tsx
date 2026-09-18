@@ -6,8 +6,8 @@ import { STAFF_PIN, isStaffUnlocked, setStaffUnlocked, useStore } from "@/lib/st
 export const Route = createFileRoute("/staff")({
   head: () => ({
     meta: [
-      { title: "Служебный раздел — AI-аудит сайтов" },
-      { name: "description", content: "Внутренний раздел сервиса AI-аудита сайтов." },
+      { title: "Служебный раздел — Mega.Audit" },
+      { name: "description", content: "Внутренний раздел сервиса Mega.Audit." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
