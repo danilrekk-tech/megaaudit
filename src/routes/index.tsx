@@ -131,7 +131,7 @@ function Index() {
           </div>
         </Card>
 
-        <h2 className="mt-16 text-2xl font-bold tracking-tight">Как это работает</h2>
+        <h2 id="how-it-works" className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight">Как это работает</h2>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           {HOW.map((h) => (
             <Card key={h.title} className="p-5">
@@ -141,7 +141,7 @@ function Index() {
           ))}
         </div>
 
-        <h2 className="mt-16 text-2xl font-bold tracking-tight">Что проверяем</h2>
+        <h2 id="opportunities" className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight">Что проверяем</h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Пять зон, от которых напрямую зависит, дойдёт ли посетитель до заказа.
         </p>
