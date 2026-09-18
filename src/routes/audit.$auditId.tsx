@@ -264,7 +264,7 @@ function AuditPage() {
               </div>
               <p className="mt-3 flex-1 text-sm text-muted-foreground">{a.description}</p>
               <p className="mt-4 text-base font-semibold tabular-nums">
-                {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+                {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}
               </p>
               <div className="mt-5 flex gap-4 text-sm font-medium">
                 <a href={a.page_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">

@@ -205,7 +205,7 @@ function StaffAudit() {
                 <p className="font-medium">{a.name}</p>
                 <p className="mt-1 text-muted-foreground">{a.category}</p>
                 <p className="mt-1 font-semibold tabular-nums">
-                  {pricesLoading ? "Уточняем…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+                  {pricesLoading ? "Уточняем…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}
                 </p>
                 <div className="mt-1 flex gap-3 text-xs">
                   <a href={a.page_url} target="_blank" rel="noreferrer" className="text-brand">

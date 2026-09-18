@@ -55,15 +55,15 @@ function StaffProposal() {
       .slice(0, 8);
   }, [catalog, query]);
 
-  if (!draft) return null;
-
-  const rows = draft.items
+  const rows = (draft?.items ?? [])
     .map((item) => ({ item, addon: catalog?.find((a) => a.id === item.addonId) }))
     .filter((r): r is { item: ProposalItem; addon: Addon } => Boolean(r.addon));
   const priceCandidates = [...rows.map((row) => row.addon), ...found]
     .filter((addon, index, list) => list.findIndex((entry) => entry.id === addon.id) === index)
     .slice(0, 12);
   const { prices, loading: pricesLoading } = useAddonPrices(priceCandidates);
+
+  if (!draft) return null;
   const subtotal = rows.reduce((s, r) => s + (r.item.price || 0), 0);
   const total = subtotal - Math.round((subtotal * draft.discountPct) / 100);
 
@@ -160,7 +160,7 @@ function StaffProposal() {
                     <p className="text-sm font-medium">{a.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{a.category}</p>
                     <p className="mt-1 text-xs font-semibold tabular-nums">
-                      {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+                      {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}
                     </p>
                   </button>
                 ))}
