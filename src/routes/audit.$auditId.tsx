@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
+import { useAddonPrices } from "@/hooks/use-addon-prices";
 import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
 import { scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
@@ -99,6 +100,7 @@ function AuditPage() {
   const addons = audit.addonIds
     .map((id) => catalog?.find((a) => a.id === id))
     .filter((a): a is Addon => Boolean(a));
+  const { prices, loading: pricesLoading } = useAddonPrices(addons);
   const weakest = weakZones(audit.zones).slice(0, 3);
   const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
 
@@ -110,7 +112,11 @@ function AuditPage() {
       host: audit.host,
       client: audit.host,
       createdAt: new Date().toISOString(),
-      items: addons.map((a, i) => ({ addonId: a.id, price: a.price ?? 0, stage: i < 3 ? 1 : 2 })),
+      items: addons.map((a, i) => ({
+        addonId: a.id,
+        price: prices[a.id] ?? a.price ?? 0,
+        stage: i < 3 ? 1 : 2,
+      })),
       discountPct: 0,
       notes: "Предложение сформировано по результатам проверки сайта в Mega.Audit.",
     });
@@ -244,7 +250,9 @@ function AuditPage() {
               Подобраны под тип сайта и самые слабые зоны аудита.
             </p>
           </div>
-          <Button onClick={createProposal}>Сформировать КП</Button>
+          <Button onClick={createProposal} disabled={pricesLoading}>
+            {pricesLoading ? "Уточняем цены…" : "Сформировать КП"}
+          </Button>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -255,6 +263,9 @@ function AuditPage() {
                 <Badge tone="brand">{a.category}</Badge>
               </div>
               <p className="mt-3 flex-1 text-sm text-muted-foreground">{a.description}</p>
+              <p className="mt-4 text-base font-semibold tabular-nums">
+                {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+              </p>
               <div className="mt-5 flex gap-4 text-sm font-medium">
                 <a href={a.page_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                   Страница услуги

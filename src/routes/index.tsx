@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PageShell } from "@/components/Shell";
-import { LogoMark } from "@/components/Logo";
 import { Badge, Button, Card, Input } from "@/components/ui-bits";
 import { ZONES, SITE_TYPE_LABEL, type SiteType } from "@/lib/audit-types";
 import { hostOf, runAudit } from "@/lib/audit-engine";
@@ -88,12 +87,6 @@ function Index() {
     <PageShell>
       <section className="mx-auto max-w-6xl px-5 pt-16 pb-10">
         <Badge tone="brand">Проверка сайта за одну минуту</Badge>
-        <div className="mt-5 flex items-center gap-3">
-          <LogoMark className="h-11 w-11" />
-          <span className="text-2xl font-bold tracking-tight">
-            Mega<span className="text-brand">.Audit</span>
-          </span>
-        </div>
         <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
           Найдите слабые места своего сайта — там, где уходят клиенты
         </h1>

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Textarea } from "@/components/ui-bits";
+import { useAddonPrices } from "@/hooks/use-addon-prices";
 import { ZONES, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
 import { runAudit } from "@/lib/audit-engine";
 import { auditsForHost, getAudit, getCatalog, saveAudit, saveProposal, useStore } from "@/lib/store";
@@ -40,6 +41,7 @@ function StaffAudit() {
   const addons = audit.addonIds
     .map((id) => catalog?.find((a) => a.id === id))
     .filter((a): a is Addon => Boolean(a));
+  const { prices, loading: pricesLoading } = useAddonPrices(addons);
 
   const save = () => {
     saveAudit({ ...audit, staff: { ...audit.staff, notes, managerComment: comment } });
@@ -65,9 +67,13 @@ function StaffAudit() {
       host: audit.host,
       client: audit.host,
       createdAt: new Date().toISOString(),
-      items: addons.map((a, i) => ({ addonId: a.id, price: a.price ?? 0, stage: i < 3 ? 1 : 2 })),
+      items: addons.map((a, i) => ({
+        addonId: a.id,
+        price: prices[a.id] ?? a.price ?? 0,
+        stage: i < 3 ? 1 : 2,
+      })),
       discountPct: 0,
-      notes: "Предложение сформировано по результатам AI-аудита сайта.",
+      notes: "Предложение сформировано по результатам проверки сайта в Mega.Audit.",
     });
     void navigate({ to: "/staff/proposal", search: { kp: id } });
   };
@@ -92,7 +98,9 @@ function StaffAudit() {
           <Button variant="outline" onClick={repeat}>
             Повторный аудит
           </Button>
-          <Button onClick={buildProposal}>Собрать КП</Button>
+          <Button onClick={buildProposal} disabled={pricesLoading}>
+            {pricesLoading ? "Уточняем цены…" : "Собрать КП"}
+          </Button>
         </div>
       </div>
 
@@ -196,6 +204,9 @@ function StaffAudit() {
               <li key={a.id} className="border-b border-border/60 pb-3 last:border-0">
                 <p className="font-medium">{a.name}</p>
                 <p className="mt-1 text-muted-foreground">{a.category}</p>
+                <p className="mt-1 font-semibold tabular-nums">
+                  {pricesLoading ? "Уточняем…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+                </p>
                 <div className="mt-1 flex gap-3 text-xs">
                   <a href={a.page_url} target="_blank" rel="noreferrer" className="text-brand">
                     услуга

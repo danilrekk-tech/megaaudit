@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, Input, Textarea } from "@/components/ui-bits";
+import { useAddonPrices } from "@/hooks/use-addon-prices";
 import type { Addon, Proposal, ProposalItem } from "@/lib/audit-types";
 import { getAudits, getCatalog, getProposal, getProposals, saveProposal, useStore } from "@/lib/store";
 
@@ -59,6 +60,10 @@ function StaffProposal() {
   const rows = draft.items
     .map((item) => ({ item, addon: catalog?.find((a) => a.id === item.addonId) }))
     .filter((r): r is { item: ProposalItem; addon: Addon } => Boolean(r.addon));
+  const priceCandidates = [...rows.map((row) => row.addon), ...found]
+    .filter((addon, index, list) => list.findIndex((entry) => entry.id === addon.id) === index)
+    .slice(0, 12);
+  const { prices, loading: pricesLoading } = useAddonPrices(priceCandidates);
   const subtotal = rows.reduce((s, r) => s + (r.item.price || 0), 0);
   const total = subtotal - Math.round((subtotal * draft.discountPct) / 100);
 
@@ -72,7 +77,7 @@ function StaffProposal() {
     if (draft.items.some((i) => i.addonId === addon.id)) return;
     setDraft({
       ...draft,
-      items: [...draft.items, { addonId: addon.id, price: addon.price ?? 0, stage: 1 }],
+      items: [...draft.items, { addonId: addon.id, price: prices[addon.id] ?? addon.price ?? 0, stage: 1 }],
     });
     setQuery("");
   };
@@ -154,6 +159,9 @@ function StaffProposal() {
                   >
                     <p className="text-sm font-medium">{a.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{a.category}</p>
+                    <p className="mt-1 text-xs font-semibold tabular-nums">
+                      {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${prices[a.id].toLocaleString("ru-RU")} ₽` : "По запросу"}
+                    </p>
                   </button>
                 ))}
               </div>
