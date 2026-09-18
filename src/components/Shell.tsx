@@ -1,17 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import megagroupLogo from "@/assets/megagroup-logo.asset.json";
 
 function MegagroupLogo() {
   return (
-    <span className="flex items-center gap-2" aria-label="Мегагрупп">
-      <span className="grid h-8 w-8 grid-cols-2 gap-0.5" aria-hidden="true">
-        <span className="rounded-tl-sm bg-brand" />
-        <span className="rounded-tr-sm bg-warning" />
-        <span className="rounded-bl-sm bg-danger" />
-        <span className="rounded-br-sm bg-success" />
-      </span>
-      <span className="text-lg font-bold">Мегагрупп.ру</span>
-    </span>
+    <img src={megagroupLogo.url} alt="Мегагрупп.ру" className="h-8 w-auto" />
   );
 }
 
