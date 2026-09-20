@@ -35,21 +35,6 @@ const PRESETS: { url: string; type: SiteType; label: string }[] = [
   { url: "promo-kursy.ru", type: "landing", label: "Лендинг" },
 ];
 
-const HOW = [
-  {
-    title: "1. Указываете адрес сайта",
-    text: "Mega.Audit сам определяет формат: одна страница — лендинг, есть корзина и карточки товаров — магазин, много разделов без корзины — сайт услуг.",
-  },
-  {
-    title: "2. Смотрите слабые места",
-    text: "По каждой зоне видно, что мешает клиенту дойти до заказа, и чем это грозит вашей выручке.",
-  },
-  {
-    title: "3. Получаете список решений",
-    text: "К каждому слабому месту подбираются доработки, подходящие именно вашему формату сайта, с ценами в готовом предложении.",
-  },
-];
-
 function Index() {
   const navigate = useNavigate();
   const detect = useServerFn(detectSiteFormat);
@@ -130,16 +115,6 @@ function Index() {
             ))}
           </div>
         </Card>
-
-        <h2 id="how-it-works" className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight">Как это работает</h2>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {HOW.map((h) => (
-            <Card key={h.title} className="p-5">
-              <p className="font-semibold">{h.title}</p>
-              <p className="mt-1.5 text-sm text-muted-foreground">{h.text}</p>
-            </Card>
-          ))}
-        </div>
 
         <h2 id="opportunities" className="mt-16 scroll-mt-24 text-2xl font-bold tracking-tight">Что проверяем</h2>
         <p className="mt-2 max-w-2xl text-muted-foreground">

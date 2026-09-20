@@ -4,7 +4,7 @@ import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
 import { useAddonPrices } from "@/hooks/use-addon-prices";
 import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
-import { scoreTone, weakZones } from "@/lib/audit-engine";
+import { addonZones, scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/audit/$auditId")({
@@ -142,6 +142,18 @@ function AuditPage() {
             : `Формат сайта: ${SITE_TYPE_LABEL[audit.siteType]}. Отчёт и доработки подобраны под него.`}
         </p>
 
+        <Card className="mt-8 border-success/30 bg-success/5">
+          <p className="font-semibold text-success">Что уже работает хорошо</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Эти сильные стороны важно сохранить при внедрении изменений.
+          </p>
+          <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            {(strengths.length ? strengths : ["Основные страницы сайта работают без ошибок"]).map((s, i) => (
+              <li key={i}>• {s}</li>
+            ))}
+          </ul>
+        </Card>
+
         <div className="mt-8 grid gap-5 lg:grid-cols-[auto_1fr]">
           <Card className="flex flex-col items-center gap-4">
             <ScoreRing score={audit.overall} />
@@ -208,15 +220,6 @@ function AuditPage() {
           })}
         </div>
 
-        <Card className="mt-6">
-          <p className="font-semibold text-success">Что уже работает хорошо</p>
-          <ul className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-            {(strengths.length ? strengths : ["Основные страницы сайта работают без ошибок"]).map((s, i) => (
-              <li key={i}>• {s}</li>
-            ))}
-          </ul>
-        </Card>
-
         <h2 className="mt-12 text-2xl font-bold tracking-tight">Сколько это стоит вам сейчас</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
@@ -258,13 +261,38 @@ function AuditPage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {addons.map((a) => (
+          {addons.map((a) => {
+            const relatedZones = weakZones(audit.zones).filter((zone) => addonZones(a).includes(zone.key));
+            const primaryZone = relatedZones[0];
+            const zoneMeta = primaryZone ? ZONES.find((zone) => zone.key === primaryZone.key) : undefined;
+            return (
             <Card key={a.id} className="flex flex-col">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold leading-snug">{a.name}</p>
                 <Badge tone="brand">{a.category}</Badge>
               </div>
-              <p className="mt-3 flex-1 text-sm text-muted-foreground">{a.description}</p>
+              {primaryZone && zoneMeta ? (
+                <div className="mt-4 border-l-2 border-brand pl-3">
+                  <p className="text-xs font-semibold uppercase text-brand">Почему рекомендовано</p>
+                  <p className="mt-1 text-sm text-foreground">
+                    Усиливает зону «{zoneMeta.label}», где сайт получил {primaryZone.score} из 100.
+                  </p>
+                </div>
+              ) : null}
+              {primaryZone?.findings.length ? (
+                <div className="mt-4">
+                  <p className="text-sm font-medium">Какие найденные проблемы решает</p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                    {primaryZone.findings.slice(0, 2).map((finding, index) => (
+                      <li key={index}>— {finding}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <div className="mt-4 flex-1 rounded-lg bg-muted/60 p-3">
+                <p className="text-sm font-medium">Какой результат даст</p>
+                <p className="mt-1 text-sm text-muted-foreground">{a.description}</p>
+              </div>
               <p className="mt-4 text-base font-semibold tabular-nums">
                 {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}
               </p>
@@ -282,7 +310,8 @@ function AuditPage() {
                 </a>
               </div>
             </Card>
-          ))}
+            );
+          })}
         </div>
 
         <Card className="mt-10 flex flex-wrap items-center justify-between gap-4">
