@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Upload } from "lucide-react";
+import { type ChangeEvent, useMemo, useRef, useState } from "react";
 import { Badge, Button, Card, Input, Textarea } from "@/components/ui-bits";
 import { ZONES, type Addon, type ZoneKey } from "@/lib/audit-types";
 import { addonZones } from "@/lib/audit-engine";
-import { getCatalog, resetCatalog, upsertAddon, useStore } from "@/lib/store";
+import { getCatalog, resetCatalog, saveCatalog, upsertAddon, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/staff/catalog")({
   component: StaffCatalog,
@@ -21,11 +22,13 @@ const emptyAddon = (): Addon => ({
 });
 
 function StaffCatalog() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [catalog, refresh] = useStore<Addon[]>(() => getCatalog());
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [draft, setDraft] = useState<Addon | null>(null);
+  const [importMessage, setImportMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
 
   const categories = useMemo(
     () => Array.from(new Set((catalog ?? []).map((a) => a.category))).sort(),
@@ -61,6 +64,69 @@ function StaffCatalog() {
     });
   };
 
+  const importCatalog = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    try {
+      const parsed: unknown = JSON.parse(await file.text());
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error("В файле должен быть непустой список доработок.");
+      }
+
+      const zoneKeys = new Set<ZoneKey>(ZONES.map((zone) => zone.key));
+      const ids = new Set<string>();
+      const imported = parsed.map((item: unknown, index): Addon => {
+        if (!item || typeof item !== "object") {
+          throw new Error(`Строка ${index + 1}: ожидается объект доработки.`);
+        }
+        const value = item as Record<string, unknown>;
+        const required = ["id", "name", "description", "category", "page_url", "demo_url"] as const;
+        for (const field of required) {
+          if (typeof value[field] !== "string" || !value[field].trim()) {
+            throw new Error(`Строка ${index + 1}: не заполнено поле «${field}».`);
+          }
+        }
+        const id = (value["id"] as string).trim();
+        if (ids.has(id)) throw new Error(`Идентификатор «${id}» встречается в файле несколько раз.`);
+        ids.add(id);
+
+        const zones = value["zones"];
+        if (zones !== undefined && (!Array.isArray(zones) || zones.some((zone) => !zoneKeys.has(zone as ZoneKey)))) {
+          throw new Error(`Строка ${index + 1}: указана неизвестная зона аудита.`);
+        }
+        if (value["price"] !== undefined && (typeof value["price"] !== "number" || value["price"] < 0)) {
+          throw new Error(`Строка ${index + 1}: цена должна быть положительным числом.`);
+        }
+        if (value["archived"] !== undefined && typeof value["archived"] !== "boolean") {
+          throw new Error(`Строка ${index + 1}: поле archived должно быть true или false.`);
+        }
+
+        return {
+          id,
+          name: (value["name"] as string).trim(),
+          description: (value["description"] as string).trim(),
+          category: (value["category"] as string).trim(),
+          page_url: (value["page_url"] as string).trim(),
+          demo_url: (value["demo_url"] as string).trim(),
+          ...(zones ? { zones: zones as ZoneKey[] } : {}),
+          ...(typeof value["price"] === "number" ? { price: value["price"] } : {}),
+          ...(typeof value["archived"] === "boolean" ? { archived: value["archived"] } : {}),
+        };
+      });
+
+      saveCatalog(imported);
+      refresh();
+      setImportMessage({ tone: "good", text: `Загружено ${imported.length} доработок. Каталог обновлён.` });
+    } catch (error) {
+      setImportMessage({
+        tone: "bad",
+        text: error instanceof Error ? error.message : "Не удалось прочитать файл. Проверьте формат JSON.",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -71,13 +137,30 @@ function StaffCatalog() {
             аудита
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(event) => void importCatalog(event)}
+          />
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4" aria-hidden="true" />
+            Импортировать JSON
+          </Button>
           <Button variant="outline" onClick={() => { resetCatalog(); refresh(); }}>
             Сбросить к исходной базе
           </Button>
           <Button onClick={() => setDraft(emptyAddon())}>Добавить доработку</Button>
         </div>
       </div>
+
+      {importMessage ? (
+        <div className="mt-4" role="status">
+          <Badge tone={importMessage.tone}>{importMessage.text}</Badge>
+        </div>
+      ) : null}
 
       {draft ? (
         <Card className="mt-6">

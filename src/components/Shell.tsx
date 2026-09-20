@@ -19,9 +19,6 @@ export function SiteHeader() {
           <Link to="/" hash="opportunities" className="transition-colors hover:text-foreground">
             Возможности
           </Link>
-          <Link to="/" hash="how-it-works" className="transition-colors hover:text-foreground">
-            Как работает
-          </Link>
           <Link to="/" className="rounded-xl border border-border bg-background px-4 py-2 text-foreground transition-colors hover:bg-muted">
             Новый аудит
           </Link>
