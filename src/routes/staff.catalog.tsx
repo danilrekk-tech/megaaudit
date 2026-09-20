@@ -88,31 +88,31 @@ function StaffCatalog() {
             throw new Error(`Строка ${index + 1}: не заполнено поле «${field}».`);
           }
         }
-        const id = (value.id as string).trim();
+        const id = (value["id"] as string).trim();
         if (ids.has(id)) throw new Error(`Идентификатор «${id}» встречается в файле несколько раз.`);
         ids.add(id);
 
-        const zones = value.zones;
+        const zones = value["zones"];
         if (zones !== undefined && (!Array.isArray(zones) || zones.some((zone) => !zoneKeys.has(zone as ZoneKey)))) {
           throw new Error(`Строка ${index + 1}: указана неизвестная зона аудита.`);
         }
-        if (value.price !== undefined && (typeof value.price !== "number" || value.price < 0)) {
+        if (value["price"] !== undefined && (typeof value["price"] !== "number" || value["price"] < 0)) {
           throw new Error(`Строка ${index + 1}: цена должна быть положительным числом.`);
         }
-        if (value.archived !== undefined && typeof value.archived !== "boolean") {
+        if (value["archived"] !== undefined && typeof value["archived"] !== "boolean") {
           throw new Error(`Строка ${index + 1}: поле archived должно быть true или false.`);
         }
 
         return {
           id,
-          name: (value.name as string).trim(),
-          description: (value.description as string).trim(),
-          category: (value.category as string).trim(),
-          page_url: (value.page_url as string).trim(),
-          demo_url: (value.demo_url as string).trim(),
+          name: (value["name"] as string).trim(),
+          description: (value["description"] as string).trim(),
+          category: (value["category"] as string).trim(),
+          page_url: (value["page_url"] as string).trim(),
+          demo_url: (value["demo_url"] as string).trim(),
           ...(zones ? { zones: zones as ZoneKey[] } : {}),
-          ...(typeof value.price === "number" ? { price: value.price } : {}),
-          ...(typeof value.archived === "boolean" ? { archived: value.archived } : {}),
+          ...(typeof value["price"] === "number" ? { price: value["price"] } : {}),
+          ...(typeof value["archived"] === "boolean" ? { archived: value["archived"] } : {}),
         };
       });
 
