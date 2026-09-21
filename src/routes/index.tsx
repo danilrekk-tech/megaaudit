@@ -6,6 +6,7 @@ import { Badge, Button, Card, Input } from "@/components/ui-bits";
 import { ZONES, SITE_TYPE_LABEL, type SiteType } from "@/lib/audit-types";
 import { hostOf, runAudit } from "@/lib/audit-engine";
 import { detectSiteFormat } from "@/lib/site-detect.functions";
+import { detectSiteFormatViaApi, usesRemoteApi } from "@/lib/api-client";
 import { auditsForHost, getCatalog, saveAudit } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
@@ -49,7 +50,9 @@ function Index() {
     let info: { reason: string; pages: number; reached: boolean } | undefined;
     if (!siteTypeHint) {
       try {
-        const res = await detect({ data: { url: clean } });
+        const res = usesRemoteApi
+          ? await detectSiteFormatViaApi(clean)
+          : await detect({ data: { url: clean } });
         detected = res.siteType;
         info = { reason: res.reason, pages: res.pages, reached: res.reached };
       } catch {
