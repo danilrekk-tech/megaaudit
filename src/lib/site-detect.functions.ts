@@ -45,11 +45,12 @@ function countInternalPages(html: string, host: string): number {
   return paths.size + 1;
 }
 
+export const detectSiteInputSchema = z.object({ url: z.string().min(1) });
+
 /** Определяет формат сайта по его разметке: 1 страница — лендинг, корзина и каталог — магазин. */
-export const detectSiteFormat = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ url: z.string().min(1) }).parse(data))
-  .handler(async ({ data }): Promise<DetectResult> => {
-    const url = /^https?:\/\//i.test(data.url) ? data.url : `https://${data.url}`;
+export async function detectFormat(rawUrl: string): Promise<DetectResult> {
+  {
+    const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
     let host = "";
     try {
       host = new URL(url).hostname.replace(/^www\./, "");
