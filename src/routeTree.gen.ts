@@ -16,6 +16,8 @@ import { Route as ProposalProposalIdRouteImport } from './routes/proposal.$propo
 import { Route as StaffIndexRouteImport } from './routes/staff.index'
 import { Route as StaffCatalogRouteImport } from './routes/staff.catalog'
 import { Route as StaffProposalRouteImport } from './routes/staff.proposal'
+import { Route as ApiPublicAddonPricesRouteImport } from './routes/api/public/addon-prices'
+import { Route as ApiPublicDetectSiteRouteImport } from './routes/api/public/detect-site'
 import { Route as StaffAuditsAuditIdRouteImport } from './routes/staff.audits.$auditId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +55,16 @@ const StaffProposalRoute = StaffProposalRouteImport.update({
   path: '/proposal',
   getParentRoute: () => StaffRoute,
 } as any)
+const ApiPublicAddonPricesRoute = ApiPublicAddonPricesRouteImport.update({
+  id: '/api/public/addon-prices',
+  path: '/api/public/addon-prices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDetectSiteRoute = ApiPublicDetectSiteRouteImport.update({
+  id: '/api/public/detect-site',
+  path: '/api/public/detect-site',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffAuditsAuditIdRoute = StaffAuditsAuditIdRouteImport.update({
   id: '/audits/$auditId',
   path: '/audits/$auditId',
@@ -67,6 +79,8 @@ export interface FileRoutesByFullPath {
   '/staff/catalog': typeof StaffCatalogRoute
   '/staff/proposal': typeof StaffProposalRoute
   '/staff/': typeof StaffIndexRoute
+  '/api/public/addon-prices': typeof ApiPublicAddonPricesRoute
+  '/api/public/detect-site': typeof ApiPublicDetectSiteRoute
   '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRoutesByTo {
@@ -76,6 +90,8 @@ export interface FileRoutesByTo {
   '/staff/catalog': typeof StaffCatalogRoute
   '/staff/proposal': typeof StaffProposalRoute
   '/staff': typeof StaffIndexRoute
+  '/api/public/addon-prices': typeof ApiPublicAddonPricesRoute
+  '/api/public/detect-site': typeof ApiPublicDetectSiteRoute
   '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRoutesById {
@@ -87,6 +103,8 @@ export interface FileRoutesById {
   '/staff/catalog': typeof StaffCatalogRoute
   '/staff/proposal': typeof StaffProposalRoute
   '/staff/': typeof StaffIndexRoute
+  '/api/public/addon-prices': typeof ApiPublicAddonPricesRoute
+  '/api/public/detect-site': typeof ApiPublicDetectSiteRoute
   '/staff/audits/$auditId': typeof StaffAuditsAuditIdRoute
 }
 export interface FileRouteTypes {
@@ -99,6 +117,8 @@ export interface FileRouteTypes {
     | '/staff/catalog'
     | '/staff/proposal'
     | '/staff/'
+    | '/api/public/addon-prices'
+    | '/api/public/detect-site'
     | '/staff/audits/$auditId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -108,6 +128,8 @@ export interface FileRouteTypes {
     | '/staff/catalog'
     | '/staff/proposal'
     | '/staff'
+    | '/api/public/addon-prices'
+    | '/api/public/detect-site'
     | '/staff/audits/$auditId'
   id:
     | '__root__'
@@ -118,6 +140,8 @@ export interface FileRouteTypes {
     | '/staff/catalog'
     | '/staff/proposal'
     | '/staff/'
+    | '/api/public/addon-prices'
+    | '/api/public/detect-site'
     | '/staff/audits/$auditId'
   fileRoutesById: FileRoutesById
 }
@@ -126,6 +150,8 @@ export interface RootRouteChildren {
   StaffRoute: typeof StaffRouteWithChildren
   AuditAuditIdRoute: typeof AuditAuditIdRoute
   ProposalProposalIdRoute: typeof ProposalProposalIdRoute
+  ApiPublicAddonPricesRoute: typeof ApiPublicAddonPricesRoute
+  ApiPublicDetectSiteRoute: typeof ApiPublicDetectSiteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -179,6 +205,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffProposalRouteImport
       parentRoute: typeof StaffRoute
     }
+    '/api/public/addon-prices': {
+      id: '/api/public/addon-prices'
+      path: '/api/public/addon-prices'
+      fullPath: '/api/public/addon-prices'
+      preLoaderRoute: typeof ApiPublicAddonPricesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/detect-site': {
+      id: '/api/public/detect-site'
+      path: '/api/public/detect-site'
+      fullPath: '/api/public/detect-site'
+      preLoaderRoute: typeof ApiPublicDetectSiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff/audits/$auditId': {
       id: '/staff/audits/$auditId'
       path: '/audits/$auditId'
@@ -210,6 +250,8 @@ const rootRouteChildren: RootRouteChildren = {
   StaffRoute: StaffRouteWithChildren,
   AuditAuditIdRoute: AuditAuditIdRoute,
   ProposalProposalIdRoute: ProposalProposalIdRoute,
+  ApiPublicAddonPricesRoute: ApiPublicAddonPricesRoute,
+  ApiPublicDetectSiteRoute: ApiPublicDetectSiteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
