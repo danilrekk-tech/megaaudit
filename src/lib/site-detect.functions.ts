@@ -104,4 +104,9 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
       shopSignals,
       reason: `Многостраничный сайт без корзины (${pages} разделов) — сайт услуг`,
     };
-  });
+  }
+}
+
+export const detectSiteFormat = createServerFn({ method: "GET" })
+  .inputValidator((data) => detectSiteInputSchema.parse(data))
+  .handler(({ data }): Promise<DetectResult> => detectFormat(data.url));
