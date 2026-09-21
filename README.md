@@ -1,14 +1,43 @@
-# Welcome to your Lovable project
+# Site Audit Pro
+
+Создай полноценный веб-сервис AI-аудита сайтов с двумя режимами: клиентским интерфейсом и скрытым разделом для сотрудников, используя прикреплённую базу услуг megagroup_dorabotki.json.
+
+1. Дизайн и стиль:
+- Ориентируйся на визуальный стиль megagroup.shop: чистый, современный, премиальный B2B/e-commerce стиль.
+- Аккуратная типографика, продуманная иерархия, карточки с мягкими тенями и тонкими рамками, лаконичные бейджи статусов и категорий.
+- Светлая технологичная палитра с акцентными фирменными цветами, интуитивно понятные графики и метрики.
+
+2. Клиентский сценарий:
+- Ввод URL сайта с быстрыми пресетами/примерами для теста (интернет-магазин, корпоративный сайт, лендинг).
+- Анимация сканирования и анализа ключевых зон: удобство заказа/корзины, мобильная адаптивность, доверие и контакты, скорость и вовлечение, SEO и коммерческие факторы.
+- Итоговая оценка сайта (общий скор удобства и конверсии, сильные стороны, узкие места).
+- Анализ влияния проблем на бизнес (потеря заявок, брошенные корзины, отток мобильных пользователей).
+- Рекомендации и подходящие доработки из реальной базы услуг megagroup_dorabotki.json (название, понятная бизнесу ценность, ссылка на страницу услуги page_url, ссылка на демо demo_url).
+- Красивый итоговый отчёт аудита с возможностью сформировать и скачать/распечатать коммерческое предложение (КП).
+
+3. Скрытый режим для сотрудников:
+- Неброский вход/переключатель (секретный PIN/код доступа или малозаметная кнопка в футере).
+- Журнал всех проведённых аудитов клиентов и сайтов с историей и фильтрами.
+- Расширенная служебная аналитика по каждому аудиту (комментарии для менеджера, расширенные технические заметки, вероятность апсейла).
+- Конструктор коммерческого предложения для клиента: выбор и комплектация доработок из базы, настройка цен, скидок и этапов внедрения.
+- Управление базой услуг и доработок (загружена из megagroup_dorabotki.json): поиск, фильтры по категориям, добавление/редактирование/архивирование, настройка привязки к типам проблем.
+- Сравнение результатов повторного аудита сайта.
+
+4. База данных и реализация:
+- Инициализируй базу услуг данными из megagroup_dorabotki.json, сохранив возможность динамического редактирования и локального сохранения в памяти/хранилище.
+- Реалистичный алгоритм аудита, определяющий специфику сайта (интернет-магазин, услуги, лендинг) и подбирающий точные релевантные доработки.
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://megaaudit.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8a1cced7-4def-4f4d-9a5c-5b92ed38224c).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +49,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
