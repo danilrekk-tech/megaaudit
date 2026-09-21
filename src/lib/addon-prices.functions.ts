@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const requestSchema = z.object({
+export const addonPricesInputSchema = z.object({
   addons: z
     .array(
       z.object({
