@@ -62,8 +62,12 @@ async function fetchPrice(id: string, pageUrl: string): Promise<AddonPriceResult
   }
 }
 
+export async function fetchAddonPrices(
+  addons: { id: string; pageUrl: string }[],
+): Promise<AddonPriceResult[]> {
+  return Promise.all(addons.map((addon) => fetchPrice(addon.id, addon.pageUrl)));
+}
+
 export const getAddonPrices = createServerFn({ method: "POST" })
-  .inputValidator((data) => requestSchema.parse(data))
-  .handler(async ({ data }): Promise<AddonPriceResult[]> =>
-    Promise.all(data.addons.map((addon) => fetchPrice(addon.id, addon.pageUrl))),
-  );
+  .inputValidator((data) => addonPricesInputSchema.parse(data))
+  .handler(({ data }): Promise<AddonPriceResult[]> => fetchAddonPrices(data.addons));
