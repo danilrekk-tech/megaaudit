@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import megagroupLogo from "@/assets/megagroup-logo.asset.json";
+import megagroupLogo from "@/assets/megagroup-logo.png";
 
 function MegagroupLogo() {
   return (
