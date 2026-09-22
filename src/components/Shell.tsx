@@ -4,7 +4,7 @@ import megagroupLogo from "@/assets/megagroup-logo.png";
 
 function MegagroupLogo() {
   return (
-    <img src={megagroupLogo.url} alt="Мегагрупп.ру" className="h-8 w-auto" />
+    <img src={megagroupLogo} alt="Мегагрупп.ру" className="h-8 w-auto" />
   );
 }
 
