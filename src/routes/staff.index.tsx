@@ -93,13 +93,13 @@ function StaffJournal() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold">{a.host}</p>
+                    <p className="font-semibold truncate">{a.host}</p>
                     <p className="text-sm text-muted-foreground">
                       {new Date(a.createdAt).toLocaleString("ru-RU")} · проверка №{a.attempt}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge tone="brand">{SITE_TYPE_LABEL[a.siteType]}</Badge>
+                    <Badge tone="brand" className="shrink-0">{SITE_TYPE_LABEL[a.siteType]}</Badge>
                     <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                       скор {a.overall}
                     </Badge>
