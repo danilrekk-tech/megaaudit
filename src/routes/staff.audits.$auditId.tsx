@@ -86,13 +86,13 @@ function StaffAudit() {
       </Link>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{audit.host}</h1>
+          <h1 className="text-2xl truncate font-bold tracking-tight">{audit.host}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {new Date(audit.createdAt).toLocaleString("ru-RU")} · проверка №{audit.attempt} ·{" "}
             {SITE_TYPE_LABEL[audit.siteType]}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <Link to="/audit/$auditId" params={{ auditId: audit.id }}>
             <Button variant="outline">Клиентский отчёт</Button>
           </Link>
@@ -118,7 +118,7 @@ function StaffAudit() {
             {audit.zones.map((z) => (
               <div key={z.key}>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{ZONES.find((x) => x.key === z.key)!.label}</span>
+                  <span className="font-medium truncate">{ZONES.find((x) => x.key === z.key)!.label}</span>
                   <span className="tabular-nums text-muted-foreground">{z.score}/100</span>
                 </div>
                 <div className="mt-2">
@@ -203,7 +203,7 @@ function StaffAudit() {
           <ul className="mt-3 space-y-3 text-sm">
             {addons.map((a) => (
               <li key={a.id} className="border-b border-border/60 pb-3 last:border-0">
-                <p className="font-medium">{a.name}</p>
+                <p className="font-medium truncate">{a.name}</p>
                 <p className="mt-1 text-muted-foreground">{a.category}</p>
                 <p className="mt-1 font-semibold tabular-nums">
                   {pricesLoading ? "Уточняем…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}

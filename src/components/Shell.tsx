@@ -35,7 +35,7 @@ export function SiteFooter() {
         <a className="shrink-0" href="https://megagroup.shop" target="_blank" rel="noreferrer" aria-label="Перейти на сайт Мегагрупп">
           <MegagroupLogo />
         </a>
-        <p className="max-w-2xl min-w-0 text-xs leading-relaxed text-muted-foreground sm:text-right">
+        <p className="max-w-2xl min-w-0 min-w-0 text-xs leading-relaxed text-muted-foreground sm:text-right">
           Автоматический аудит оценивает удобство и коммерческую готовность сайта. Результат носит
           рекомендательный характер и помогает определить приоритетные точки роста.
         </p>
