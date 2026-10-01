@@ -157,7 +157,7 @@ function StaffProposal() {
                     onClick={() => addItem(a)}
                     className="w-full rounded-xl border border-border/70 p-3 text-left transition-colors hover:border-brand"
                   >
-                    <p className="text-sm font-medium">{a.name}</p>
+                    <p className="text-sm font-medium truncate truncate">{a.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{a.category}</p>
                     <p className="mt-1 text-xs font-semibold tabular-nums">
                       {pricesLoading ? "Уточняем стоимость…" : prices[a.id] ? `${(prices[a.id] ?? 0).toLocaleString("ru-RU")} ₽` : "По запросу"}
@@ -172,7 +172,7 @@ function StaffProposal() {
                 <div key={r.addon.id} className="rounded-xl border border-border/70 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="max-w-lg">
-                      <p className="text-sm font-semibold">{r.addon.name}</p>
+                      <p className="text-sm font-semibold truncate truncate">{r.addon.name}</p>
                       <Badge tone="brand" className="mt-2">
                         {r.addon.category}
                       </Badge>
@@ -265,7 +265,7 @@ function StaffProposal() {
                     onClick={() => setDraft(p)}
                     className="text-left hover:text-brand"
                   >
-                    {p.host || "без сайта"} · {new Date(p.createdAt).toLocaleDateString("ru-RU")}
+                    {<span className="truncate">{p.host || "без сайта"}</span>} · {new Date(p.createdAt).toLocaleDateString("ru-RU")}
                   </button>
                   <Link
                     to="/proposal/$proposalId"

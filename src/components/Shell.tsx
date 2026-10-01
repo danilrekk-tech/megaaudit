@@ -12,7 +12,7 @@ export function SiteHeader() {
   return (
     <header className="no-print sticky top-0 z-20 h-16 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-5">
-        <a href="https://megagroup.shop" target="_blank" rel="noreferrer" aria-label="Перейти на сайт Мегагрупп">
+        <a className="shrink-0" href="https://megagroup.shop" target="_blank" rel="noreferrer" aria-label="Перейти на сайт Мегагрупп">
           <MegagroupLogo />
         </a>
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
@@ -32,10 +32,10 @@ export function SiteFooter() {
   return (
     <footer className="no-print mt-20 border-t border-border bg-surface">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-7 sm:flex-row sm:items-center sm:justify-between">
-        <a href="https://megagroup.shop" target="_blank" rel="noreferrer" aria-label="Перейти на сайт Мегагрупп">
+        <a className="shrink-0" href="https://megagroup.shop" target="_blank" rel="noreferrer" aria-label="Перейти на сайт Мегагрупп">
           <MegagroupLogo />
         </a>
-        <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground sm:text-right">
+        <p className="max-w-2xl min-w-0 min-w-0 text-xs leading-relaxed text-muted-foreground sm:text-right">
           Автоматический аудит оценивает удобство и коммерческую готовность сайта. Результат носит
           рекомендательный характер и помогает определить приоритетные точки роста.
         </p>

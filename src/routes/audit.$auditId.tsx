@@ -135,7 +135,7 @@ function AuditPage() {
             {new Date(audit.createdAt).toLocaleString("ru-RU")}
           </span>
         </div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
+        <h1 className="mt-4 text-3xl truncate font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           {audit.detect?.reason
             ? `${audit.detect.reason}. Отчёт и доработки подобраны под этот формат.`
@@ -173,7 +173,7 @@ function AuditPage() {
                 return (
                   <div key={z.key}>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{meta.label}</span>
+                      <span className="font-medium truncate">{meta.label}</span>
                       <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                         {z.score}
                       </Badge>
@@ -199,7 +199,7 @@ function AuditPage() {
             return (
               <Card key={z.key}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-lg font-semibold">{meta.label}</p>
+                  <p className="text-lg truncate font-semibold">{meta.label}</p>
                   <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                     оценка {z.score} из 100
                   </Badge>
@@ -268,7 +268,7 @@ function AuditPage() {
             return (
             <Card key={a.id} className="flex flex-col">
               <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold leading-snug">{a.name}</p>
+                <p className="font-semibold truncate leading-snug">{a.name}</p>
                 <Badge tone="brand">{a.category}</Badge>
               </div>
               {primaryZone && zoneMeta ? (

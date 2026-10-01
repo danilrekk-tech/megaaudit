@@ -61,9 +61,9 @@ function StaffLayout() {
     <div className="min-h-screen bg-surface">
       <header className="no-print border-b border-border/70 bg-background">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-          <div className="flex items-center gap-6">
-            <span className="font-bold tracking-tight">Служебный раздел</span>
-            <nav className="flex gap-4 text-sm">
+          <div className="flex items-center gap-6 min-w-0 min-w-0">
+            <span className="font-bold shrink-0 shrink-0 tracking-tight">Служебный раздел</span>
+            <nav className="flex shrink-0 gap-4 text-sm">
               {NAV.map((n) => (
                 <Link
                   key={n.to}
