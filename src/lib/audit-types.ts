@@ -50,7 +50,7 @@ export type Audit = {
   conversionScore: number;
   zones: ZoneResult[];
   impact: AuditImpact;
-  detect?: { reason: string; pages: number; reached: boolean };
+  detect?: { reason: string; pages: number; reached: boolean; checks?: import("./site-detect.functions").SiteChecks };
   addonIds: string[];
   staff: {
     notes: string;
