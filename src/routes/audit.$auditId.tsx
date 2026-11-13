@@ -131,6 +131,9 @@ function AuditPage() {
         <div className="flex flex-wrap items-center gap-3">
           <Badge tone="brand">{SITE_TYPE_LABEL[audit.siteType]}</Badge>
           <Badge>Проверка №{audit.attempt}</Badge>
+          <Badge tone={audit.detect?.checks ? "good" : "warn"}>
+            {audit.detect?.checks ? "По реальной странице сайта" : "Сайт не ответил — типичная картина для формата"}
+          </Badge>
           <span className="text-sm text-muted-foreground">
             {new Date(audit.createdAt).toLocaleString("ru-RU")}
           </span>
@@ -193,13 +196,16 @@ function AuditPage() {
           Начните с этих зон — они сильнее всего мешают посетителям дойти до заказа.
         </p>
         <div className="mt-5 space-y-4">
-          {weakest.map((z) => {
+          {weakest.map((z, idx) => {
             const meta = ZONES.find((x) => x.key === z.key)!;
             const tone = scoreTone(z.score);
             return (
               <Card key={z.key}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="min-w-0 text-lg font-semibold">{meta.label}</p>
+                  <p className="min-w-0 text-lg font-semibold">
+                    <span className="mr-2 text-muted-foreground">{idx + 1}.</span>
+                    {meta.label}
+                  </p>
                   <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                     оценка {z.score} из 100
                   </Badge>

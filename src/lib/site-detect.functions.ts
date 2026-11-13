@@ -148,6 +148,7 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
       reached: true,
       pages,
       shopSignals,
+      checks,
       reason: `Многостраничный сайт без корзины (${pages} разделов) — сайт услуг`,
     };
   }
