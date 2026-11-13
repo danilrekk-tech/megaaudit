@@ -62,7 +62,7 @@ function ProposalPage() {
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
             <div>
               <p className="text-sm text-muted-foreground">Коммерческое предложение</p>
-              <h1 className="mt-1 text-2xl truncate font-bold">Доработки сайта {proposal.host}</h1>
+              <h1 className="mt-1 text-2xl break-words font-bold">Доработки сайта {proposal.host}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 от {new Date(proposal.createdAt).toLocaleDateString("ru-RU")} · клиент:{" "}
                 {proposal.client || proposal.host}
@@ -97,7 +97,7 @@ function ProposalPage() {
                     .map((r) => (
                       <tr key={r.addon.id} className="border-t border-border/70">
                         <td className="py-3 pr-4">
-                          <p className="font-medium truncate">{r.addon.name}</p>
+                          <p className="break-words font-medium">{r.addon.name}</p>
                           <p className="mt-1 text-muted-foreground">{r.addon.description}</p>
                           <div className="mt-1.5 flex gap-3 text-xs">
                             <a href={r.addon.page_url} className="text-brand truncate">
