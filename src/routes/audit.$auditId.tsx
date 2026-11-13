@@ -4,7 +4,7 @@ import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
 import { useAddonPrices } from "@/hooks/use-addon-prices";
 import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
-import { addonZones, scoreTone, weakZones } from "@/lib/audit-engine";
+import { addonFindings, addonZones, scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/audit/$auditId")({
@@ -283,7 +283,7 @@ function AuditPage() {
                 <div className="mt-4">
                   <p className="text-sm font-medium">Какие найденные проблемы решает</p>
                   <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
-                    {primaryZone.findings.slice(0, 2).map((finding, index) => (
+                    {addonFindings(a, primaryZone).map((finding, index) => (
                       <li key={index}>— {finding}</li>
                     ))}
                   </ul>

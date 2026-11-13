@@ -6,6 +6,7 @@ import {
   type ZoneKey,
   type ZoneResult,
 } from "./audit-types";
+import type { SiteChecks } from "./site-detect.functions";
 
 export function normalizeUrl(input: string): string {
   const raw = input.trim();
@@ -173,6 +174,34 @@ export function addonZones(addon: Addon): ZoneKey[] {
   return all.length ? all : ["seo"];
 }
 
+type Rule = { zone: ZoneKey; ok: (c: SiteChecks) => boolean; bad: string; good: string; weight: number };
+
+/** Правила по реальной разметке сайта: каждая — понятная проблема или сильная сторона. */
+const RULES: Rule[] = [
+  { zone: "mobile", weight: 18, ok: (c) => c.viewport, bad: "Сайт не настроен под экран телефона — страница показывается уменьшенной копией десктопа", good: "Страница адаптирована под ширину экрана телефона" },
+  { zone: "order", weight: 14, ok: (c) => c.forms > 0, bad: "На главной нет ни одной формы — оставить заявку можно только перейдя в другой раздел", good: "Форма для обращения есть прямо на главной" },
+  { zone: "trust", weight: 10, ok: (c) => c.phone, bad: "Телефон не кликабельный — с мобильного нельзя позвонить в одно касание", good: "Телефон кликабельный, позвонить можно в одно касание" },
+  { zone: "trust", weight: 10, ok: (c) => c.messengers, bad: "Нет ссылок на мессенджеры — тем, кто не любит звонить, неудобно связаться", good: "Есть быстрая связь через мессенджеры" },
+  { zone: "trust", weight: 10, ok: (c) => c.reviews, bad: "На главной не видно отзывов и кейсов — новому посетителю не на что опереться", good: "Отзывы или кейсы видны уже на главной" },
+  { zone: "trust", weight: 6, ok: (c) => c.legal, bad: "Не указаны реквизиты компании — это снижает доверие перед оплатой", good: "Указаны данные компании" },
+  { zone: "speed", weight: 12, ok: (c) => c.htmlKb < 250, bad: "Главная страница очень тяжёлая — на мобильном интернете она открывается долго", good: "Главная страница лёгкая и быстро загружается" },
+  { zone: "speed", weight: 8, ok: (c) => c.scripts < 35, bad: "На странице слишком много сторонних скриптов — они тормозят открытие", good: "Сторонних скриптов немного, страница не перегружена" },
+  { zone: "speed", weight: 8, ok: (c) => c.images < 8 || c.lazyImages > 0, bad: "Все картинки грузятся сразу, даже те, до которых посетитель не долистал", good: "Картинки подгружаются по мере прокрутки" },
+  { zone: "seo", weight: 8, ok: (c) => c.title && c.description, bad: "Нет понятного заголовка и описания — в поиске сайт выглядит невыразительно", good: "Заголовок и описание страницы заполнены" },
+  { zone: "seo", weight: 6, ok: (c) => c.ogTags, bad: "При отправке ссылки в мессенджер не показывается красивое превью", good: "Ссылка на сайт красиво выглядит в мессенджерах" },
+  { zone: "seo", weight: 5, ok: (c) => c.h1 === 1, bad: "Главный заголовок страницы оформлен неправильно — поиску сложно понять, о чём сайт", good: "Главный заголовок страницы оформлен правильно" },
+  { zone: "order", weight: 6, ok: (c) => c.https, bad: "Сайт открывается без защищённого соединения — браузер предупреждает посетителя", good: "Сайт работает по защищённому соединению" },
+];
+
+/** Оценивает зону по реальным признакам: 100 минус вес проваленных правил. */
+export function evaluateChecks(checks: SiteChecks, zone: ZoneKey) {
+  const rules = RULES.filter((r) => r.zone === zone);
+  const failed = rules.filter((r) => !r.ok(checks));
+  const passed = rules.filter((r) => r.ok(checks));
+  const penalty = failed.reduce((s, r) => s + r.weight, 0);
+  return { penalty, findings: failed.map((r) => r.bad), strengths: passed.map((r) => r.good) };
+}
+
 function pick<T>(list: T[], count: number, rand: () => number): T[] {
   const copy = [...list];
   const out: T[] = [];
@@ -218,6 +247,29 @@ export function weakZones(zones: ZoneResult[]): ZoneResult[] {
   });
 }
 
+const stem = (w: string) => w.toLowerCase().replace(/[^a-zа-яё0-9]/gi, "").slice(0, 6);
+
+/** Насколько описание доработки перекликается с конкретными проблемами зоны (общие корни слов). */
+export function addonRelevance(addon: Addon, zone: ZoneResult): number {
+  const words = new Set(
+    `${addon.name} ${addon.description}`.split(/\s+/).map(stem).filter((w) => w.length >= 5),
+  );
+  const text = zone.findings.join(" ").split(/\s+/).map(stem).filter((w) => w.length >= 5);
+  return new Set(text.filter((w) => words.has(w))).size;
+}
+
+/** Самые близкие доработке проблемы зоны — для объяснения «что решает». */
+export function addonFindings(addon: Addon, zone: ZoneResult, n = 2): string[] {
+  const words = new Set(
+    `${addon.name} ${addon.description}`.split(/\s+/).map(stem).filter((w) => w.length >= 5),
+  );
+  return [...zone.findings]
+    .map((f, i) => ({ f, i, s: f.split(/\s+/).map(stem).filter((w) => words.has(w)).length }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .slice(0, n)
+    .map((x) => x.f);
+}
+
 export function recommendAddons(
   zones: ZoneResult[],
   siteType: SiteType,
@@ -233,7 +285,8 @@ export function recommendAddons(
       .sort((a, b) => {
         const bonus = (x: Addon) =>
           (siteType === "ecommerce" && x.category === "Интернет-магазин" ? -2 : 0) +
-          (siteType !== "ecommerce" && x.category === "Интернет-магазин" ? 2 : 0);
+          (siteType !== "ecommerce" && x.category === "Интернет-магазин" ? 2 : 0) -
+          addonRelevance(x, zone) * 3;
         return bonus(a) - bonus(b) || a.name.localeCompare(b.name);
       });
     matches.slice(0, n).forEach((a) => out.push(a.id));
@@ -248,7 +301,7 @@ export function runAudit(
   options: {
     siteTypeHint?: SiteType | undefined;
     attempt?: number | undefined;
-    detect?: { reason: string; pages: number; reached: boolean } | undefined;
+    detect?: Audit["detect"] | undefined;
   } = {},
 ): Audit {
   const url = normalizeUrl(input);
@@ -258,17 +311,23 @@ export function runAudit(
   const rand = rng(hash(`${host}|${siteType}|${attempt}`));
   const improvement = (attempt - 1) * 7;
 
+  const checks = options.detect?.checks;
   const zones: ZoneResult[] = ZONES.map((z) => {
-    const base = 38 + Math.floor(rand() * 48) + improvement;
+    const real = checks ? evaluateChecks(checks, z.key) : undefined;
+    // С реальными данными оценка опирается на найденное, без них — на типичную картину для формата.
+    const base = real
+      ? 88 - real.penalty - Math.floor(rand() * 14) + improvement
+      : 38 + Math.floor(rand() * 48) + improvement;
     const score = Math.max(24, Math.min(96, base));
     const pool = [...FINDINGS[z.key][siteType], ...FINDINGS[z.key].any];
     const findingCount = score >= 80 ? 2 : score >= 60 ? 3 : 5;
-    return {
-      key: z.key,
-      score,
-      findings: pick(pool, findingCount, rand),
-      strengths: pick(STRENGTHS[z.key], score >= 70 ? 2 : 1, rand),
-    };
+    const findings = [...(real?.findings ?? [])];
+    for (const f of pick(pool, findingCount, rand)) if (findings.length < findingCount) findings.push(f);
+    const strengths = [...(real?.strengths ?? []), ...pick(STRENGTHS[z.key], 2, rand)].slice(
+      0,
+      score >= 70 ? 3 : 2,
+    );
+    return { key: z.key, score, findings, strengths };
   });
 
   const overall = Math.round(zones.reduce((s, z) => s + z.score, 0) / zones.length);
