@@ -104,7 +104,7 @@ function AuditPage() {
   }
 
   const weakest = weakZones(audit.zones).slice(0, 3);
-  const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
+  const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : [])).slice(0, 6);
 
   const createProposal = () => {
     const id = `kp-${audit.id}-${Date.now().toString(36)}`;

@@ -323,7 +323,7 @@ export function runAudit(
     const findingCount = score >= 80 ? 2 : score >= 60 ? 3 : 5;
     const findings = [...(real?.findings ?? [])];
     for (const f of pick(pool, findingCount, rand)) if (findings.length < findingCount) findings.push(f);
-    const strengths = [...(real?.strengths ?? []), ...pick(STRENGTHS[z.key], 2, rand)].slice(
+    const strengths = (real?.strengths.length ? real.strengths : pick(STRENGTHS[z.key], 2, rand)).slice(
       0,
       score >= 70 ? 3 : 2,
     );
