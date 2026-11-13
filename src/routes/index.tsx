@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, Input } from "@/components/ui-bits";
-import { ZONES, SITE_TYPE_LABEL, type SiteType } from "@/lib/audit-types";
+import { ZONES, SITE_TYPE_LABEL, type SiteType, type Audit } from "@/lib/audit-types";
 import { hostOf, runAudit } from "@/lib/audit-engine";
 import { detectSiteFormat } from "@/lib/site-detect.functions";
 import { detectSiteFormatViaApi, usesRemoteApi } from "@/lib/api-client";
@@ -47,14 +47,14 @@ function Index() {
     if (!clean || busy) return;
     setBusy(true);
     let detected: SiteType | undefined = siteTypeHint;
-    let info: { reason: string; pages: number; reached: boolean } | undefined;
+    let info: Audit["detect"];
     if (!siteTypeHint) {
       try {
         const res = usesRemoteApi
           ? await detectSiteFormatViaApi(clean)
           : await detect({ data: { url: clean } });
         detected = res.siteType;
-        info = { reason: res.reason, pages: res.pages, reached: res.reached };
+        info = { reason: res.reason, pages: res.pages, reached: res.reached, ...(res.checks ? { checks: res.checks } : {}) };
       } catch {
         detected = undefined;
       }

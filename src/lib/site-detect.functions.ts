@@ -8,7 +8,50 @@ export type DetectResult = {
   pages: number;
   shopSignals: string[];
   reason: string;
+  checks?: SiteChecks;
 };
+
+/** Реальные признаки, найденные в разметке главной страницы. */
+export type SiteChecks = {
+  https: boolean;
+  viewport: boolean;
+  title: boolean;
+  description: boolean;
+  ogTags: boolean;
+  forms: number;
+  phone: boolean;
+  messengers: boolean;
+  reviews: boolean;
+  legal: boolean;
+  images: number;
+  lazyImages: number;
+  scripts: number;
+  htmlKb: number;
+  h1: number;
+  schema: boolean;
+};
+
+function collectChecks(html: string, url: string): SiteChecks {
+  const count = (re: RegExp) => (html.match(re) ?? []).length;
+  return {
+    https: url.startsWith("https://"),
+    viewport: /<meta[^>]+name=["']viewport/i.test(html),
+    title: /<title>[^<]{5,}<\/title>/i.test(html),
+    description: /<meta[^>]+name=["']description["'][^>]+content=["'][^"']{30,}/i.test(html),
+    ogTags: /property=["']og:(title|image)/i.test(html),
+    forms: count(/<form\b/gi),
+    phone: /href=["']tel:/i.test(html),
+    messengers: /(wa\.me|whatsapp|t\.me\/|telegram|viber|vk\.me|max\.ru)/i.test(html),
+    reviews: /(отзыв|review|рейтинг|кейс)/i.test(html),
+    legal: /(ИНН|ОГРН|ООО|ИП\s)/.test(html),
+    images: count(/<img\b/gi),
+    lazyImages: count(/loading=["']lazy/gi),
+    scripts: count(/<script\b/gi),
+    htmlKb: Math.round(html.length / 1024),
+    h1: count(/<h1\b/gi),
+    schema: /application\/ld\+json|itemscope/i.test(html),
+  };
+}
 
 const SHOP_MARKERS: { re: RegExp; label: string }[] = [
   { re: /(в\s*корзину|добавить\s*в\s*корзину|add\s*to\s*cart)/i, label: "кнопка «В корзину»" },
@@ -78,6 +121,7 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
 
     const shopSignals = SHOP_MARKERS.filter((m) => m.re.test(html)).map((m) => m.label);
     const pages = countInternalPages(html, host);
+    const checks = collectChecks(html, url);
 
     if (shopSignals.length >= 3) {
       return {
@@ -85,6 +129,7 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
         reached: true,
         pages,
         shopSignals,
+        checks,
         reason: `Найдены признаки магазина: ${shopSignals.slice(0, 3).join(", ")}`,
       };
     }
@@ -94,6 +139,7 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
         reached: true,
         pages,
         shopSignals,
+        checks,
         reason: "Весь контент на одной странице — это лендинг",
       };
     }
@@ -102,6 +148,7 @@ export async function detectFormat(rawUrl: string): Promise<DetectResult> {
       reached: true,
       pages,
       shopSignals,
+      checks,
       reason: `Многостраничный сайт без корзины (${pages} разделов) — сайт услуг`,
     };
   }

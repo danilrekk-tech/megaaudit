@@ -6,7 +6,7 @@ export function Card({ className, children }: { className?: string; children: Re
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border/70 bg-card p-6 shadow-[var(--shadow-soft)]",
+        "min-w-0 rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-[var(--shadow-soft)]",
         className,
       )}
     >
@@ -34,7 +34,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        "inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium",
         tones[tone],
         className,
       )}
@@ -70,7 +70,7 @@ export function Button({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-center transition-colors disabled:opacity-50",
         variants[variant],
         className,
       )}

@@ -4,7 +4,7 @@ import { PageShell } from "@/components/Shell";
 import { Badge, Button, Card, ScoreBar, ScoreRing, Stat } from "@/components/ui-bits";
 import { useAddonPrices } from "@/hooks/use-addon-prices";
 import { ZONES, ZONE_LOSS, SITE_TYPE_LABEL, type Addon, type Audit } from "@/lib/audit-types";
-import { addonZones, scoreTone, weakZones } from "@/lib/audit-engine";
+import { addonFindings, addonZones, scoreTone, weakZones } from "@/lib/audit-engine";
 import { getAudit, getCatalog, saveProposal, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/audit/$auditId")({
@@ -104,7 +104,7 @@ function AuditPage() {
   }
 
   const weakest = weakZones(audit.zones).slice(0, 3);
-  const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : []));
+  const strengths = audit.zones.flatMap((z) => (z.score >= 70 ? z.strengths : [])).slice(0, 6);
 
   const createProposal = () => {
     const id = `kp-${audit.id}-${Date.now().toString(36)}`;
@@ -131,11 +131,14 @@ function AuditPage() {
         <div className="flex flex-wrap items-center gap-3">
           <Badge tone="brand">{SITE_TYPE_LABEL[audit.siteType]}</Badge>
           <Badge>Проверка №{audit.attempt}</Badge>
+          <Badge tone={audit.detect?.checks ? "good" : "warn"}>
+            {audit.detect?.checks ? "По реальной странице сайта" : "Сайт не ответил — типичная картина для формата"}
+          </Badge>
           <span className="text-sm text-muted-foreground">
             {new Date(audit.createdAt).toLocaleString("ru-RU")}
           </span>
         </div>
-        <h1 className="mt-4 text-3xl truncate font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
+        <h1 className="mt-4 text-2xl sm:text-3xl break-words font-bold tracking-tight">Где сайт {audit.host} теряет клиентов</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           {audit.detect?.reason
             ? `${audit.detect.reason}. Отчёт и доработки подобраны под этот формат.`
@@ -172,8 +175,8 @@ function AuditPage() {
                 const tone = scoreTone(z.score);
                 return (
                   <div key={z.key}>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium truncate">{meta.label}</span>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="min-w-0 font-medium">{meta.label}</span>
                       <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                         {z.score}
                       </Badge>
@@ -193,13 +196,16 @@ function AuditPage() {
           Начните с этих зон — они сильнее всего мешают посетителям дойти до заказа.
         </p>
         <div className="mt-5 space-y-4">
-          {weakest.map((z) => {
+          {weakest.map((z, idx) => {
             const meta = ZONES.find((x) => x.key === z.key)!;
             const tone = scoreTone(z.score);
             return (
               <Card key={z.key}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-lg truncate font-semibold">{meta.label}</p>
+                  <p className="min-w-0 text-lg font-semibold">
+                    <span className="mr-2 text-muted-foreground">{idx + 1}.</span>
+                    {meta.label}
+                  </p>
                   <Badge tone={tone === "good" ? "good" : tone === "warn" ? "warn" : "bad"}>
                     оценка {z.score} из 100
                   </Badge>
@@ -268,7 +274,7 @@ function AuditPage() {
             return (
             <Card key={a.id} className="flex flex-col">
               <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold truncate leading-snug">{a.name}</p>
+                <p className="min-w-0 break-words font-semibold leading-snug">{a.name}</p>
                 <Badge tone="brand">{a.category}</Badge>
               </div>
               {primaryZone && zoneMeta ? (
@@ -283,7 +289,7 @@ function AuditPage() {
                 <div className="mt-4">
                   <p className="text-sm font-medium">Какие найденные проблемы решает</p>
                   <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
-                    {primaryZone.findings.slice(0, 2).map((finding, index) => (
+                    {addonFindings(a, primaryZone).map((finding, index) => (
                       <li key={index}>— {finding}</li>
                     ))}
                   </ul>
